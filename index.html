@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Personal fishing tackle inventory and expense ledger.">
+  <title>Tackle Inventory</title>
+  <style>
+    :root { --ink:#102a35; --muted:#667b83; --sea:#087d85; --foam:#e9f6f3; --sand:#f6f2e9; --line:#d9e2e0; --card:#fff; }
+    * { box-sizing:border-box; }
+    body { margin:0; color:var(--ink); background:linear-gradient(135deg,#edf8f7 0%,var(--sand) 100%); font:15px/1.45 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif; }
+    main { max-width:1240px; margin:auto; padding:42px 22px 70px; }
+    .eyebrow { color:var(--sea); font-size:.76rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }
+    h1 { margin:5px 0 5px; font:800 clamp(2.2rem,6vw,4.6rem)/.96 Georgia,serif; letter-spacing:-.04em; }
+    .subtitle { color:var(--muted); margin:0 0 28px; max-width:680px; }
+    .stats { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin:22px 0; }
+    .stat,.filters,.table-wrap,.note { background:rgba(255,255,255,.86); border:1px solid rgba(255,255,255,.8); border-radius:15px; box-shadow:0 10px 30px rgba(27,63,65,.07); }
+    .stat { padding:18px; } .stat b { display:block; font-size:1.4rem; margin-top:5px; } .stat span { color:var(--muted); font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; }
+    .filters { display:flex; gap:12px; align-items:center; padding:12px; margin:24px 0 12px; }
+    input,select { width:100%; border:1px solid var(--line); border-radius:9px; padding:10px 11px; background:#fff; font:inherit; color:var(--ink); }
+    input { flex:2; } select { flex:1; }
+    .table-wrap { overflow:auto; } table { width:100%; border-collapse:collapse; min-width:870px; } th { text-align:left; padding:13px 15px; background:#f3faf8; color:var(--muted); font-size:.72rem; text-transform:uppercase; letter-spacing:.06em; } td { padding:14px 15px; border-top:1px solid var(--line); vertical-align:top; } tr:hover { background:#fbfefd; }
+    .category { display:inline-block; padding:3px 8px; border-radius:999px; color:#075a60; background:#dff2ed; font-size:.75rem; font-weight:800; white-space:nowrap; } .type { font-weight:750; } .item { display:block; margin-top:2px; color:var(--muted); font-size:.87rem; } .price { font-weight:800; white-space:nowrap; } .muted { color:var(--muted); } .note { margin-top:18px; padding:15px 17px; color:#49616a; }
+    footer { color:var(--muted); font-size:.83rem; margin-top:20px; }
+    @media(max-width:720px) { main { padding:28px 14px 55px; } .stats { grid-template-columns:repeat(2,1fr); } .filters { flex-direction:column; align-items:stretch; } }
+  </style>
+</head>
+<body>
+<main>
+  <div class="eyebrow">Personal fishing ledger · 25 September 2026</div>
+  <h1>Tackle inventory</h1>
+  <p class="subtitle">A searchable record of rods, terminal tackle, lures, storage, and acquisition cost. Prices are in Indonesian rupiah.</p>
+  <section class="stats" aria-label="Inventory summary">
+    <div class="stat"><span>Inventory lines</span><b id="itemCount">—</b></div>
+    <div class="stat"><span>Gear value</span><b id="gearValue">—</b></div>
+    <div class="stat"><span>Known lure / jig weight</span><b id="weightTotal">—</b></div>
+    <div class="stat"><span>Fishing spend incl. trip</span><b>Rp4,289,409</b></div>
+  </section>
+  <section class="filters" aria-label="Inventory filters">
+    <input id="search" type="search" placeholder="Search item, colour, size, or brand…" autocomplete="off">
+    <select id="category"><option value="">All categories</option></select>
+    <select id="weight"><option value="">All weights</option><option value="light">Up to 10 g</option><option value="medium">10.1–30 g</option><option value="heavy">Over 30 g</option><option value="none">No stated weight</option></select>
+  </section>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Category</th><th>Type / item</th><th>Colour / variation</th><th>Weight</th><th>Size / specification</th><th>Qty</th><th>Cost</th></tr></thead>
+    <tbody id="rows"></tbody>
+  </table></div>
+  <aside class="note"><strong>Expense basis.</strong> Gear value includes Rp300,000 for a second-hand rod + reel and Rp30,000 for separately reported swivels. The latest Riptide receipt had Rp12,220 of shipping/checkout difference; the displayed fishing-spend figure includes that difference plus the Rp300,000 last fishing trip. The AA battery/charger purchase (Rp296,000) is intentionally excluded as non-tackle.</aside>
+  <footer>Line prices use the final displayed sale price. A duplicated Kraken/Asura/leader/box order was intentionally recorded once.</footer>
+</main>
+<script>
+const items = [
+  ['Rod & reel','Spinning rod','Daiwa D-Blue','', '802MHS',1,654000], ['Rod & reel','Spinning reel','Daiwa Revros LT HG 2025','', '4000-CXH',1,1375000], ['Rod & reel','Second-hand rod + reel','Second-hand','', 'Details not recorded',1,300000],
+  ['Line & leader','Braided main line','Crony Pro Braid X8 black','', '300 m · #2 · 30 lb · 0.23 mm',1,245775], ['Line & leader','Braided main line','PE X8 Storm camouflage','', '300 m · #0.8 · 0.14 mm · 10.3 kg',1,134400], ['Line & leader','Fluorocarbon leader','Firelock Casper clear','', '25 m · 40 lb',1,103639], ['Line & leader','Steel leader','Riptide RTL-09A','', '15 cm',1,11469], ['Line & leader','Steel leader','Riptide RTL-09','', '15 cm',2,11469], ['Line & leader','Stainless leader','Black','', '25 cm',10,3599],
+  ['Hooks & terminal','Flash-fiber tinsel','Firelock purple','', '13.5 cm',1,3500], ['Hooks & terminal','Flash-fiber tinsel','Firelock green','', '13.5 cm',1,3500], ['Hooks & terminal','Flash-fiber tinsel','Firelock UV purple','', '13.5 cm',1,3500], ['Hooks & terminal','Jigging assist hook','Firelock Hunter','', '2/0',3,13622], ['Hooks & terminal','Worm hook with blade','Firelock Asura silver',7, 'Weighted hook',2,10851], ['Hooks & terminal','Double assist hook','Lurekiller blue · size 14','', '2 packs',2,6030], ['Hooks & terminal','Double assist hook','Lurekiller blue · size 15','', '2 packs',2,6700], ['Hooks & terminal','Ball-bearing snap swivel','Riptide BR-13 · size 3','', 'Stainless steel',2,12000], ['Hooks & terminal','Swivels','Details not recorded','', 'Separate purchase',1,30000], ['Hooks & terminal','Sabiki rig','Gurita luminous','', '5 hooks',1,22800], ['Hooks & terminal','Glow sticks','Starlet Fosfor Orca','', '26 mm · 50 sachets × 5',1,135000],
+  ['Tools & storage','Fishing pliers / cutter','Bapak Ikan yellow','', 'Hook remover + line cutter',1,16999], ['Tools & storage','UV flashlight','OYKO FL-90UV','', 'Ultraviolet LED',1,79000], ['Tools & storage','Tackle organiser','PJCM-0019','', 'Divided box',1,28405], ['Tools & storage','Double-layer tackle box','Superstar BX-11 clear','', '21 × 11.5 × 4.5 cm',1,25000], ['Tools & storage','Rod clip / holder','Blue','', '2 pcs',1,11999],
+  ['Metal jig','Riptide Bromo micro jig','Electroplating',20,'',1,21460], ['Metal jig','Riptide Mars','Electro',60,'',1,47420], ['Metal jig','Hooked Jig Ultra Hachiman GID','Orange',40,'Glow in the dark',1,28621], ['Metal jig','TRU micro jig','Green',20,'',1,15999], ['Metal jig','Bionic double-hook metal jig','Silver',20,'6 cm',1,12999], ['Metal jig','Micro jig','Silver',20,'',1,15399], ['Metal jig','Micro jig','Silver',10,'',1,13399], ['Metal jig','Laser VIB jig BK008','E',15,'6.2 cm',1,11999], ['Metal jig','Mini metal jig BK610','',4,'2.5 cm · 4 pcs',4,34999], ['Metal jig','Mongkalo SLOWJIX GID','Pink',40,'Double assist hook',1,34500],
+  ['Spoon & VIB','Riptide Poseidon VIB spoon','Electro',20,'Blade spinner',1,25397], ['Spoon & VIB','Bapak Ikan BK007 spoon / VIB','Yellow',30,'6.9 cm',1,14999], ['Spoon & VIB','BK001 spoon / VIB','Silver',30,'7.2 cm',1,13999], ['Spoon & VIB','Riptide Kraken spoon','Silver',20,'',1,17973], ['Spoon & VIB','Riptide Kraken spoon','Silver',40,'',1,28822], ['Spoon & VIB','Proberos MJ114 metal VIB','Silver',15,'',1,13800],
+  ['Hard lure','Large floating minnow','Variant H',27,'17 cm',1,32999], ['Hard lure','Mini wobbler / crankbait','Variant F',1.7,'3 cm',1,9999], ['Hard lure','8-segment jointed swimbait BK805','Variant 6',19,'13.28 cm · slow sinking',1,50000], ['Hard lure','Floating minnow BK485','Variant 13',8.5,'9 cm',1,9999], ['Hard lure','Floating minnow BK728','Variant 8',3.6,'5 cm',1,8999], ['Hard lure','Floating minnow BK728','Variant 2',3.6,'5 cm',1,8999], ['Hard lure','Popper BK198','Variant 7',43,'12 cm',1,21999], ['Hard lure','Proberos popper DW1002','Variant B',12,'9.5 cm',1,13700], ['Hard lure','Proberos floating minnow MN148','Variant A',24.5,'18.5 cm',1,20000], ['Hard lure','Riptide Razor floating pencil minnow','Blue pink',11.5,'7.5 cm',1,17428], ['Hard lure','Riptide Spartan walk-the-dog lure','Pink sakura',13.4,'10.1 cm',1,36329],
+  ['Soft & squid lure','Soft plastic minnow set','',13,'8.5 cm · 6 pcs + box',1,54999], ['Soft & squid lure','Luminous squid trolling lure','JIZ001-4',40,'14 cm',1,27700], ['Soft & squid lure','Bapak Ikan squid BK269','Green',11,'10 cm',1,25000], ['Soft & squid lure','Sinking minnow BK686','Variant 4',24,'9.5 cm · 3 pcs',3,38997]
+];
+const money = value => 'Rp' + new Intl.NumberFormat('id-ID').format(value);
+const rows = document.querySelector('#rows'), search = document.querySelector('#search'), category = document.querySelector('#category'), weight = document.querySelector('#weight');
+const categories = [...new Set(items.map(i=>i[0]))].sort(); categories.forEach(c=>category.add(new Option(c,c)));
+const weightedTotal = items.reduce((sum,i)=>sum+(Number(i[3])||0)*i[5],0);
+const gearTotal = items.reduce((sum,i)=>sum+i[6],0);
+document.querySelector('#itemCount').textContent = items.length + ' lines'; document.querySelector('#gearValue').textContent = money(gearTotal); document.querySelector('#weightTotal').textContent = weightedTotal.toFixed(1) + ' g';
+function matchesWeight(value, filter) { if (!filter) return true; if (value === '') return filter === 'none'; if (filter === 'light') return value <= 10; if (filter === 'medium') return value > 10 && value <= 30; return value > 30; }
+function render() { const query = search.value.toLowerCase(); const filtered = items.filter(i => (!category.value || i[0]===category.value) && matchesWeight(i[3],weight.value) && i.join(' ').toLowerCase().includes(query)); rows.innerHTML = filtered.map(i=>`<tr><td><span class="category">${i[0]}</span></td><td><span class="type">${i[1]}</span><span class="item">${i[2]||'—'}</span></td><td>${i[2]||'—'}</td><td>${i[3] !== '' ? i[3]+' g' : '<span class="muted">—</span>'}</td><td>${i[4]||'—'}</td><td>${i[5]}</td><td class="price">${money(i[6])}</td></tr>`).join('') || '<tr><td colspan="7" class="muted">No inventory items match these filters.</td></tr>'; }
+[search,category,weight].forEach(el=>el.addEventListener('input',render)); render();
+</script>
+</body>
+</html>
