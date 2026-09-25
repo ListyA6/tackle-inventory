@@ -62,7 +62,8 @@ const items = [
 const money = value => 'Rp' + new Intl.NumberFormat('id-ID').format(value);
 const rows = document.querySelector('#rows'), search = document.querySelector('#search'), category = document.querySelector('#category'), weight = document.querySelector('#weight');
 const categories = [...new Set(items.map(i=>i[0]))].sort(); categories.forEach(c=>category.add(new Option(c,c)));
-const weightedTotal = items.reduce((sum,i)=>sum+(Number(i[3])||0)*i[5],0);
+const lureCategories = new Set(['Metal jig','Spoon & VIB','Hard lure','Soft & squid lure']);
+const weightedTotal = items.filter(i=>lureCategories.has(i[0])).reduce((sum,i)=>sum+(Number(i[3])||0)*i[5],0);
 const gearTotal = items.reduce((sum,i)=>sum+i[6],0);
 document.querySelector('#itemCount').textContent = items.length + ' lines'; document.querySelector('#gearValue').textContent = money(gearTotal); document.querySelector('#weightTotal').textContent = weightedTotal.toFixed(1) + ' g';
 function matchesWeight(value, filter) { if (!filter) return true; if (value === '') return filter === 'none'; if (filter === 'light') return value <= 10; if (filter === 'medium') return value > 10 && value <= 30; return value > 30; }
